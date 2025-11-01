@@ -42,18 +42,16 @@ export default function Providers() {
                     </div>
                     {/* PHẦN HÌNH ẢNH ĐÃ ĐƯỢC CẬP NHẬT */}
                     <div className="relative **h-96** **bg-gray-100** rounded-3xl flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow p-6">
-                        {/* Hình ảnh điện thoại được hiển thị một cách nổi bật hơn */}
                         <div className="relative w-full h-3/4 flex items-center justify-center">
                             <Image
                                 src="/provider.png"
                                 alt="Minh họa giao diện quản lý nhà cung cấp"
-                                width={300} // Tăng nhẹ width (từ 250 lên 300) để ảnh lớn hơn
-                                height={600} // Tăng chiều cao tương ứng để giữ tỷ lệ (tối ưu cho ảnh điện thoại dọc)
-                                className="object-contain shadow-2xl rounded-3xl" // Shadow và bo tròn mạnh hơn
+                                width={300}
+                                height={600} 
+                                className="object-contain shadow-2xl rounded-3xl"
                             />
                         </div>
 
-                        {/* Thông tin "Công Cụ Toàn Diện" được đặt ở phía dưới, không che ảnh */}
                         <div className="text-center mt-2">
                             <div className="text-xl font-bold text-gray-900 mb-1">Quản lý trên di động</div>
                             <div className="text-base font-medium text-gray-700">Theo dõi doanh thu mọi lúc, mọi nơi</div>

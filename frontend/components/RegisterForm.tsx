@@ -1,4 +1,14 @@
 import React, { useState } from 'react';
+import { CheckCircle, Loader2, ArrowRight, ChevronDown, AlertTriangle } from 'lucide-react';
+
+// Định nghĩa types cho formData
+interface FormData {
+    fullName: string;
+    phone: string;
+    email: string;
+    userType: 'Khách hàng' | 'Doanh nghiệp';
+    businessField: string;
+}
 
 const businessCategories = [
     'Nhà hàng & Ăn uống',
@@ -10,8 +20,51 @@ const businessCategories = [
     'Khác',
 ];
 
+// Endpoint của Server Node.js/Express
+const API_ENDPOINT = 'https://socigo.onrender.com/register'; 
+
+// Hàm gửi dữ liệu thực tế đến backend
+const sendDataToApi = async (data: FormData) => {
+    // Ứng dụng sẽ tự động thử lại với Exponential Backoff nếu gặp lỗi mạng hoặc lỗi 5xx
+    const maxRetries = 3;
+    let lastError = null;
+
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                // Ném lỗi nếu response không phải là 2xx (ví dụ: 400 hoặc 500)
+                throw new Error(result.message || `Lỗi từ Server (Status ${response.status})`);
+            }
+
+            return result; // Thành công, thoát khỏi vòng lặp
+            
+        } catch (error) {
+            lastError = error;
+            console.error(`Lần thử ${i + 1} thất bại.`, error);
+            if (i < maxRetries - 1) {
+                // Đợi 2^i * 1000ms trước khi thử lại
+                const delay = Math.pow(2, i) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                // Lần thử cuối cùng thất bại, ném lỗi ra ngoài
+                throw lastError;
+            }
+        }
+    }
+};
+
 export default function RegisterForm() {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         fullName: '',
         phone: '',
         email: '',
@@ -21,6 +74,8 @@ export default function RegisterForm() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [submittedEmail, setSubmittedEmail] = useState<string>(''); // Lưu email đã submit
 
     React.useEffect(() => {
         const link = document.createElement('link');
@@ -31,35 +86,55 @@ export default function RegisterForm() {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value as any }));
         if (name === 'userType' && value === 'Khách hàng') {
             setFormData(prev => ({ ...prev, businessField: '' }));
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitSuccess(false);
+        setSubmitError(null);
 
-        console.log('Dữ liệu đăng ký:', formData);
-
-        setTimeout(() => {
-            setIsSubmitting(false);
+        // Lưu email trước khi gửi để hiển thị trong thông báo thành công
+        setSubmittedEmail(formData.email); 
+        
+        try {
+            // Gửi dữ liệu đến backend
+            await sendDataToApi(formData);
+            
             setSubmitSuccess(true);
-        }, 2000);
+            // Xóa form data sau khi gửi thành công
+            setFormData({
+                fullName: '',
+                phone: '',
+                email: '',
+                userType: 'Khách hàng',
+                businessField: '',
+            });
+
+        } catch (error) {
+            console.error("Gửi form thất bại:", error);
+            // Cập nhật thông báo lỗi rõ ràng hơn
+            setSubmitError(`Đã xảy ra lỗi: ${(error as Error).message}. Vui lòng kiểm tra Server Node.js (port 3001) đã chạy chưa hoặc xem log lỗi chi tiết.`);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const isBusiness = formData.userType === 'Doanh nghiệp';
 
     return (
-        <section id="dang-ky" className="py-8 sm:py-12 lg:py-16 relative overflow-hidden bg-linear-to-br from-gray-50 via-gray-50/30 to-gray-100" style={{ fontFamily: 'Inter, sans-serif' }}>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(16,185,129,0.08),transparent_50%)]"></div>
+        <section id="dang-ky" className="py-8 sm:py-12 lg:py-16 relative overflow-hidden bg-linear-to-br from-gray-50 via-gray-50/30 to-gray-100 min-h-screen flex items-center justify-center" style={{ fontFamily: 'Inter, sans-serif' }}>
+            {/* Background linears */}
+            <div className="absolute inset-0 bg-[radial-linear(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%),radial-linear(circle_at_70%_80%,rgba(16,185,129,0.08),transparent_50%)]"></div>
 
-            <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
+            <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
                 <div className="bg-white/90 backdrop-blur-md rounded-xl sm:rounded-2xl lg:rounded-3xl p-5 sm:p-8 md:p-10 border border-gray-200/50 shadow-2xl relative overflow-hidden transition-all duration-500 hover:shadow-blue-500/20">
 
-
+                    {/* Title Section */}
                     <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-center mb-1 sm:mb-2 text-gray-900 relative z-10 tracking-tight">
                         Đồng Hành Cùng <span className="bg-linear-to-r from-blue-800 to-blue-900 bg-clip-text text-transparent">SOCIGO</span>
                     </h2>
@@ -67,13 +142,20 @@ export default function RegisterForm() {
                         Đăng ký để cùng SOCIGO chia sẻ trải nghiệm và phát triển kinh doanh
                     </p>
 
+                    {/* Error Display */}
+                    {submitError && (
+                        <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg flex items-center text-sm sm:text-base animate-pulse">
+                            <AlertTriangle className="h-5 w-5 mr-2" />
+                            <span className="wrap-break-words">{submitError}</span>
+                        </div>
+                    )}
+
                     {submitSuccess ? (
+                        /* Success State */
                         <div className="text-center p-6 sm:p-10 bg-linear-to-br from-green-50 to-emerald-50 border-l-4 border-green-500 text-green-700 rounded-xl sm:rounded-2xl relative z-10 shadow-lg">
-                            <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-green-500" />
                             <h3 className="text-lg sm:text-xl font-bold mt-3 text-gray-900">Đăng ký thành công!</h3>
-                            <p className="mt-2 text-sm sm:text-base text-gray-700">Cảm ơn bạn đã đồng hành cùng SOCIGO. Chúng tôi sẽ liên hệ sớm nhất.</p>
+                            <p className="mt-2 text-sm sm:text-base text-gray-700">Cảm ơn bạn đã đồng hành cùng SOCIGO. Thông tin đã được gửi đến email quản trị. Chúng tôi sẽ liên hệ với bạn qua email **{submittedEmail}** sớm nhất.</p>
                             <button
                                 onClick={() => setSubmitSuccess(false)}
                                 className="mt-4 sm:mt-5 px-6 py-2.5 text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105"
@@ -82,10 +164,12 @@ export default function RegisterForm() {
                             </button>
                         </div>
                     ) : (
+                        /* Registration Form */
                         <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-7 relative z-10">
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 lg:gap-x-8 gap-y-4 sm:gap-y-5">
 
+                                {/* Full Name & Phone - Column 1 */}
                                 <div className="space-y-4 sm:space-y-5">
                                     <div className="relative group">
                                         <label htmlFor="fullName" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Họ và Tên</label>
@@ -114,10 +198,12 @@ export default function RegisterForm() {
                                             className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none transition-all duration-300 text-sm sm:text-base shadow-sm hover:border-gray-300 bg-white/50 backdrop-blur-sm"
                                         />
                                     </div>
-
+                                    
+                                    {/* Placeholder to align the grid on large screens */}
                                     {!isBusiness && <div className="hidden md:block h-4"></div>}
                                 </div>
 
+                                {/* Email, UserType, and Business Field - Column 2 */}
                                 <div className="space-y-4 sm:space-y-5">
                                     <div className="relative group">
                                         <label htmlFor="email" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Email</label>
@@ -137,6 +223,7 @@ export default function RegisterForm() {
                                         <span className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2 sm:mb-2.5">Bạn là:</span>
                                         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
 
+                                            {/* Khách hàng Radio Button */}
                                             <label className={`flex-1 flex items-center justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 cursor-pointer transition-all duration-300 text-sm sm:text-base font-semibold ${isBusiness ? 'border-gray-200 bg-white/50 text-gray-700 hover:bg-gray-50 hover:border-gray-300' : 'border-gray-500 bg-linear-to-r from-gray-800 to-gray-900 text-white shadow-lg scale-105'}`}>
                                                 <input
                                                     type="radio"
@@ -149,6 +236,7 @@ export default function RegisterForm() {
                                                 <span>Khách hàng</span>
                                             </label>
 
+                                            {/* Doanh nghiệp Radio Button */}
                                             <label className={`flex-1 flex items-center justify-center px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 cursor-pointer transition-all duration-300 text-sm sm:text-base font-semibold ${isBusiness ? 'border-gray-800 bg-linear-to-r from-gray-800 to-gray-900 text-white shadow-lg scale-105' : 'border-gray-200 bg-white/50 text-gray-700 hover:bg-gray-50 hover:border-gray-300'}`}>
                                                 <input
                                                     type="radio"
@@ -163,6 +251,7 @@ export default function RegisterForm() {
                                         </div>
                                     </div>
 
+                                    {/* Business Field Dropdown (Conditional) */}
                                     {isBusiness && (
                                         <div className="relative transition-all duration-500 ease-in-out animate-fadeIn">
                                             <label htmlFor="businessField" className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">Lĩnh vực kinh doanh</label>
@@ -180,8 +269,9 @@ export default function RegisterForm() {
                                                         <option key={category} value={category}>{category}</option>
                                                     ))}
                                                 </select>
+                                                {/* Replaced SVG with ChevronDown icon */}
                                                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-600">
-                                                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                                                    <ChevronDown className="fill-current h-4 w-4" />
                                                 </div>
                                             </div>
                                         </div>
@@ -189,26 +279,24 @@ export default function RegisterForm() {
                                 </div>
                             </div>
 
+                            {/* Submit Button */}
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-linear-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg  relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 group/btn mt-6 sm:mt-8"
+                                className="w-full bg-linear-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg relative overflow-hidden disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 group/btn mt-6 sm:mt-8"
                             >
                                 <span className="relative z-10 flex items-center justify-center">
                                     {isSubmitting ? (
                                         <>
-                                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                            </svg>
+                                            {/* Replaced SVG with Loader2 icon */}
+                                            <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
                                             Đang xử lý...
                                         </>
                                     ) : (
                                         <>
                                             Đăng ký ngay
-                                            <svg className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                                            </svg>
+                                            {/* Replaced SVG with ArrowRight icon */}
+                                            <ArrowRight className="ml-2 w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                                         </>
                                     )}
                                 </span>

@@ -21,17 +21,17 @@ export default function Navbar() {
   return (
     <>
       {/* Header */}
-      <header className={`fixed w-full top-0 z-50 transition-all cursor-pointer duration-500 ${scrolled ? 'bg-white/90 backdrop-blur-xl shadow-lg py-3' : 'bg-transparent py-5'}`}>
+      <header className={`fixed w-full top-0 z-50 transition-all cursor-pointer duration-500 ${scrolled ? 'bg-white backdrop-blur-xl shadow-lg py-3' : 'bg-transparent py-5'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2 group select-none" onClick={reloadPage}>
               {/* Icon container */}
-              <div className="relative w-10 h-10 rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-all duration-300 shadow-lg group-hover:shadow-2xl overflow-hidden">
+              <div className="relative w-10 h-10 rounded-xl flex items-center justify-center transform group-hover:rotate-12 transition-all duration-300 overflow-hidden">
                 <Image
                   src="/socigologo.jpg"
                   alt="SOCIGO Logo"
                   fill
-                  className="object-cover rounded-xl opacity-80 group-hover:opacity-100 transition-opacity duration-300"
+                  className="object-cover rounded-xl transition-opacity duration-300"
                   sizes="40px"
                 />
               </div>

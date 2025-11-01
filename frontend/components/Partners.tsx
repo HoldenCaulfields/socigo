@@ -14,8 +14,8 @@ export default function Partners() {
         <section id="doi-tac" className="py-20 bg-linear-to-b from-white to-gray-50 overflow-hidden relative">
             <div className="absolute inset-0 bg-[radial-linear(circle_at_70%_50%,rgba(120,120,120,0.05),transparent_50%)]"></div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12 relative z-10">
-                <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 bg-linear-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">
-                    Đối tác của chúng tôi
+                <h2 className="text-4xl md:text-5xl font-bold text-center mb-4 text-black hover:scale-105 transition-transform  animate-in fade-in duration-700">
+                        Đối tác của chúng tôi
                 </h2>
                 <p className="text-xl text-gray-600 text-center">Hơn 10+ doanh nghiệp tin tưởng</p>
             </div>

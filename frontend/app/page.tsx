@@ -3,13 +3,13 @@
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import Feature from '@/components/Feature';
-import Voucher from '@/components/Voucher';
 import Download from '@/components/Download';
 import Partners from '@/components/Partners';
-import Subcribe from '@/components/Subcribe';
 import Footer from '@/components/Footer';
 import Providers from '@/components/Providers';
 import Customer from '@/components/Customer';
+import Loyalty from '@/components/Loyalty';
+import RegisterForm from '@/components/RegisterForm';
 
 const Home = () => {
   
@@ -30,7 +30,7 @@ const Home = () => {
       <Customer />
 
       {/* Vouchers */}
-      <Voucher />
+      <Loyalty />
 
       {/* Download Apps */}
       <Download />
@@ -39,14 +39,11 @@ const Home = () => {
       <Partners />
 
       {/* Subcribe Section */}
-      <Subcribe />
+      <RegisterForm />
 
       {/* Footer */}
       <Footer />
 
-      <style>{`
-        
-      `}</style>
     </div>
   );
 };

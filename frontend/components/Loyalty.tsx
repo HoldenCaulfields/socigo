@@ -1,6 +1,6 @@
-import { Gift, Star } from 'lucide-react';
+import { Gift } from 'lucide-react';
 
-export default function LoyaltyPoints() {
+export default function Loyalty() {
    
     const rewards = [
         // Cập nhật cấu trúc: points tách thành pointValue (số) và pointUnit (chuỗi)
@@ -16,7 +16,9 @@ export default function LoyaltyPoints() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent font-sans">Tích Điểm Đổi Quà Cực Hot</h2>
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-black hover:scale-105 transition-transform  animate-in fade-in duration-700">
+                        Tích Điểm Đổi Quà Cực Hot
+                    </h2>
                     <p className="text-xl text-gray-600 mb-8 font-sans">Đổi điểm tích lũy để nhận ngay những ưu đãi hấp dẫn!</p>
                 </div>
 

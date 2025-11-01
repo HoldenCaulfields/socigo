@@ -20,7 +20,6 @@ export default function HeroSection() {
                         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
                             <span className="inline-block hover:scale-105 transition-transform  animate-in fade-in duration-700">Trải nghiệm.</span><br />
                             <span className="inline-block hover:scale-105 transition-transform  animate-in fade-in duration-700" style={{ animationDelay: '200ms' }}>Đánh giá.</span><br />
-                            <span className="bg-linear-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent inline-block hover:scale-105 transition-transform  animate-in fade-in duration-700" style={{ animationDelay: '400ms' }}>Nhận ưu đãi.</span>
                         </h1>
 
                         <p className="text-xl text-gray-600 leading-relaxed animate-in fade-in duration-700" style={{ animationDelay: '600ms' }}>

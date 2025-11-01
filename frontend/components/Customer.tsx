@@ -12,11 +12,28 @@ export default function CustomerFeatures() {
     ];
 
     return (
-        <section id="khach-hang" className="py-16 sm:py-20 bg-gray-50">
+        <section id="khach-hang" className="py-10 sm:py-20 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-                    {/* IMAGE */}
+                    <div className="relative order-2 lg:order-1 **h-96** **bg-gray-100** rounded-3xl flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition-shadow p-6">
+                        <div className="relative w-full h-3/4 flex items-center justify-center">
+                            <Image
+                                src="/gioithieu3.png"
+                                alt="Minh họa giao diện quản lý nhà cung cấp"
+                                width={300}
+                                height={600}
+                                className="object-contain shadow-2xl rounded-3xl"
+                            />
+                        </div>
+
+                        <div className="mt-2 flex items-center justify-center p-3 bg-white rounded-xl shadow-lg border border-blue-300">
+                            <Smartphone className="w-5 h-5 text-cyan-600 mr-2" />
+                            <span className="text-sm font-semibold text-gray-900">Trải nghiệm liền mạch</span>
+                        </div>
+                    </div>
+
+                    {/* IMAGE 
                     <div className="relative h-[300px] sm:h-[500px] lg:h-[600px] flex flex-col items-center justify-center p-6 sm:p-8 rounded-3xl shadow-2xl transition-transform duration-700 hover:scale-105 order-2 lg:order-1">
                         <div className="relative w-full h-full flex items-center justify-center">
                             <img
@@ -30,7 +47,7 @@ export default function CustomerFeatures() {
                             <span className="text-sm font-semibold text-gray-900">Trải nghiệm liền mạch</span>
                         </div>
 
-                    </div>
+                    </div>*/}
 
                     {/* CONTENT */}
                     <div className="space-y-6 order-1 lg:order-2">
