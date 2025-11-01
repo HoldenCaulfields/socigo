@@ -66,9 +66,9 @@ export default function Navbar() {
       {isMenuOpen && (
         <div className="fixed inset-0 z-40 bg-white pt-20 px-6 animate-in fade-in duration-300">
           <nav className="flex flex-col space-y-4">
-            {['Giới thiệu', 'Tính năng', 'Voucher', 'Đối tác', 'Tải app'].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className="text-xl font-medium py-2 hover:text-gray-700 transition-colors" onClick={() => setIsMenuOpen(false)}>
-                {item}
+            {labels.map((label, index) => (
+              <a key={label} href={`#${ids[index]}`} className="text-xl font-medium py-2 hover:text-gray-700 transition-colors" onClick={() => setIsMenuOpen(false)}>
+                {label}
               </a>
             ))}
             <a href="#dang-ky" className="bg-linear-to-r from-gray-900 to-gray-700 text-white px-6 py-3 rounded-full mt-4 hover:shadow-xl transition-all">

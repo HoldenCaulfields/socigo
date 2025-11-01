@@ -6,7 +6,7 @@ export default function Footer() {
       <footer className="bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-linear(circle_at_30%_50%,rgba(255,255,255,0.05),transparent_50%)]"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-12">
             <div>
               <div className="flex items-center space-x-2 mb-6 group">
                 <div className="relative w-7 h-7 group-hover:rotate-12 transition-all duration-300">
