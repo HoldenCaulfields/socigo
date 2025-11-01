@@ -6,8 +6,8 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
-  const labels = ["Giới thiệu", "Tính năng", "Đối tác", "Tích Điểm", "Tải app"];
-  const ids = ["gioi-thieu", "tinh-nang", "doi-tac", "tich-diem", "tai-app"];
+  const labels = ["Giới thiệu", "Tính năng", "Doanh Ngiệp", "Khách Hàng", "Tải app"];
+  const ids = ["", "tinh-nang", "nha-cung-cap", "khach-hang", "tai-app"];
 
   const reloadPage = () => {
     window.location.href = "/"; // reloads the home page

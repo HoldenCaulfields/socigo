@@ -3,12 +3,13 @@
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import Feature from '@/components/Feature';
-import Vision from '@/components/Vision';
 import Voucher from '@/components/Voucher';
 import Download from '@/components/Download';
 import Partners from '@/components/Partners';
 import Subcribe from '@/components/Subcribe';
 import Footer from '@/components/Footer';
+import Providers from '@/components/Providers';
+import Customer from '@/components/Customer';
 
 const Home = () => {
   
@@ -24,7 +25,9 @@ const Home = () => {
       <Feature />
 
       {/* Vision */}
-      <Vision />
+      <Providers />
+
+      <Customer />
 
       {/* Vouchers */}
       <Voucher />

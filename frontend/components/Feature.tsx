@@ -14,7 +14,7 @@ export default function Feature() {
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-gray-100/20 to-transparent"></div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-black">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-black hover:scale-105 transition-transform  animate-in fade-in duration-700">
                         Tính năng nổi bật giúp SOCIGO khác biệt
                     </h2>
                     <p className="text-xl text-gray-600">Những điểm độc đáo không thể tìm thấy ở bất kỳ đâu khác</p>
