@@ -28,11 +28,11 @@ export default function HeroSection() {
                         </p>
 
                         <div className="flex flex-wrap gap-4 animate-in fade-in duration-700" style={{ animationDelay: '800ms' }}>
-                            <button className="bg-linear-to-r from-gray-900 to-gray-700 text-white px-8 py-4 rounded-full font-medium hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2 shadow-lg group relative overflow-hidden">
+                            <a href='#dang-ky' className="bg-linear-to-r from-gray-900 to-gray-700 text-white px-8 py-4 rounded-full font-medium hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-105 flex items-center space-x-2 shadow-lg group relative overflow-hidden">
                                 <span className="relative z-10">Đăng ký miễn phí</span>
                                 <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
                                 <div className="absolute inset-0 bg-linear-to-r from-gray-700 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            </button>
+                            </a>
                             <button className="border-2 border-gray-900 text-gray-900 px-8 py-4 rounded-full font-medium hover:bg-gray-700 hover:text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-xl">
                                 Xem demo
                             </button>

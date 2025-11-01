@@ -59,7 +59,7 @@ export default function CustomerFeatures() {
 
                         <a
                             href="#tai-app"
-                            className="inline-flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base sm:text-lg font-medium rounded-full shadow-lg text-white bg-gradient-to-r from-gray-900 to-gray-800 hover:shadow-xl transition-all transform hover:scale-105 duration-300 whitespace-nowrap"
+                            className="inline-flex items-center justify-center px-6 sm:px-8 py-3 border border-transparent text-base sm:text-lg font-medium rounded-full shadow-lg text-white bg-linear-to-r from-gray-900 to-gray-800 hover:shadow-xl transition-all transform hover:scale-105 duration-300 whitespace-nowrap"
                         >
                             Tải ứng dụng ngay
                         </a>

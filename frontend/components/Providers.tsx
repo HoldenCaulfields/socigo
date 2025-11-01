@@ -36,7 +36,7 @@ export default function Providers() {
                             ))}
                         </div>
                         <a
-                            href={"#tai-app"}
+                            href={"#dang-ky"}
                             className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-linear-to-r from-gray-900 to-gray-700 hover:shadow-xl transition-all transform hover:scale-105 duration-300 **whitespace-nowrap**"
                         > Đăng ký ngay </a>
                     </div>

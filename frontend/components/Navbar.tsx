@@ -50,10 +50,10 @@ export default function Navbar() {
               ))}
             </nav>
 
-            <button className="hidden md:block bg-linear-to-r from-gray-900 to-gray-700 text-white px-6 py-2.5 rounded-full hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-105 font-medium relative overflow-hidden group">
+            <a href="#dang-ky" className="hidden md:block bg-linear-to-r from-gray-900 to-gray-700 text-white px-6 py-2.5 rounded-full hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-105 font-medium relative overflow-hidden group">
               <span className="relative z-10">Đăng ký ngay</span>
               <div className="absolute inset-0 bg-linear-to-r from-gray-700 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
+            </a>
 
             <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? <X /> : <Menu />}
@@ -71,9 +71,9 @@ export default function Navbar() {
                 {item}
               </a>
             ))}
-            <button className="bg-linear-to-r from-gray-900 to-gray-700 text-white px-6 py-3 rounded-full mt-4 hover:shadow-xl transition-all">
+            <a href="#dang-ky" className="bg-linear-to-r from-gray-900 to-gray-700 text-white px-6 py-3 rounded-full mt-4 hover:shadow-xl transition-all">
               Đăng ký ngay
-            </button>
+            </a>
           </nav>
         </div>
       )}

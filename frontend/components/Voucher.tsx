@@ -1,47 +1,55 @@
-import { Gift } from 'lucide-react';
+import { Gift, Star } from 'lucide-react';
 
-export default function Voucher() {
-
-    const vouchers = [
-        { service: 'Nha Khoa', discount: '30%', code: 'DENTAL30', color: 'from-blue-50 to-blue-100' },
-        { service: 'Spa & Làm đẹp', discount: '25%', code: 'SPA25', color: 'from-pink-50 to-pink-100' },
-        { service: 'Khách sạn', discount: '40%', code: 'HOTEL40', color: 'from-purple-50 to-purple-100' },
-        { service: 'Thuê xe', discount: '20%', code: 'CAR20', color: 'from-green-50 to-green-100' },
+export default function LoyaltyPoints() {
+   
+    const rewards = [
+        // Cập nhật cấu trúc: points tách thành pointValue (số) và pointUnit (chuỗi)
+        { service: 'Giảm giá Nha Khoa', pointValue: 200, pointUnit: 'điểm', code: 'DENTAL30', description: 'Voucher Giảm 30% Dịch vụ', color: 'from-blue-50 to-blue-100' },
+        { service: 'Ưu đãi Spa & Làm đẹp', pointValue: 150, pointUnit: 'điểm', code: 'SPA25', description: 'Voucher Giảm 25% Dịch vụ', color: 'from-pink-50 to-pink-100' },
+        { service: 'Khách sạn/Lưu trú', pointValue: 300, pointUnit: 'điểm', code: 'HOTEL40', description: 'Voucher Giảm 40% Đặt phòng', color: 'from-purple-50 to-purple-100' },
+        { service: 'Dịch vụ Thuê xe', pointValue: 100, pointUnit: 'điểm', code: 'CAR20', description: 'Voucher Giảm 20% Thuê xe', color: 'from-green-50 to-green-100' },
     ];
 
     return (
-        <section id="tich-diem" className="py-20 bg-linear-to-b from-gray-50 to-white relative overflow-hidden">
+        <section id="tich-diem" className="py-20 bg-linear-to-b from-gray-50 to-white relative overflow-hidden font-sans">
             <div className="absolute inset-0 bg-[radial-linear(circle_at_30%_50%,rgba(120,120,120,0.05),transparent_50%)]"></div>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent">Voucher siêu hấp dẫn</h2>
-                    <p className="text-xl text-gray-600">Đăng ký ngay để nhận ưu đãi</p>
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-gray-700 to-gray-900 bg-clip-text text-transparent font-sans">Tích Điểm Đổi Quà Cực Hot</h2>
+                    <p className="text-xl text-gray-600 mb-8 font-sans">Đổi điểm tích lũy để nhận ngay những ưu đãi hấp dẫn!</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {vouchers.map((voucher, idx) => (
+                    {rewards.map((reward, idx) => (
                         <div
                             key={idx}
-                            className={`bg-linear-to-br ${voucher.color} rounded-2xl p-6 border-2 border-gray-900/10 hover:border-gray-900 transition-all duration-500 transform hover:scale-110 hover:shadow-2xl hover:rotate-1 group cursor-pointer`}
+                            className={`bg-linear-to-br ${reward.color} rounded-2xl p-6 border-2 border-gray-900/10 hover:border-gray-900 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:rotate-1 group cursor-pointer font-sans`}
                             style={{ animation: `fadeInScale 0.7s ease-in-out ${idx * 0.1}s both` }}
                         >
                             <div className="flex items-center justify-between mb-4">
-                                <Gift className="w-8 h-8 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
-                                <span className="text-3xl font-bold group-hover:scale-110 transition-transform duration-300">{voucher.discount}</span>
+                                <Gift className="w-8 h-8 text-gray-800 group-hover:scale-110 group-hover:rotate-12 transition-all duration-300" />
+                                
+                                {/* TÁCH BIỆT HIỂN THỊ SỐ VÀ ĐƠN VỊ ĐIỂM */}
+                                <div className="flex items-baseline space-x-1">
+                                    <span className="text-3xl font-extrabold text-gray-900 group-hover:scale-105 transition-transform duration-300">
+                                        {reward.pointValue}
+                                    </span>
+                                    <span className="text-lg font-bold text-gray-700">
+                                        {reward.pointUnit}
+                                    </span>
+                                </div>
+                                {/* KẾT THÚC TÁCH BIỆT */}
+
                             </div>
-                            <h3 className="text-xl font-bold mb-2 group-hover:translate-x-1 transition-transform duration-300">{voucher.service}</h3>
-                            <div className="bg-white/90 backdrop-blur rounded-lg px-4 py-2 font-mono font-bold text-center mt-4 group-hover:bg-white transition-all duration-300 shadow-sm group-hover:shadow-md">
-                                {voucher.code}
+                            <h3 className="text-xl font-bold mb-1 text-gray-800 group-hover:translate-x-1 transition-transform duration-300 font-sans">{reward.service}</h3>
+                            <p className="text-base text-gray-600 mb-4 font-sans">{reward.description}</p>
+
+                            <div className="bg-white/90 backdrop-blur rounded-lg px-4 py-2 font-bold text-center mt-4 text-gray-900 transition-all duration-300 shadow-md group-hover:shadow-lg font-sans">
+                                ĐỔI NGAY
                             </div>
                         </div>
                     ))}
-                </div>
-
-                <div className="text-center mt-12">
-                    <button className="bg-linear-to-r from-gray-900 to-gray-700 text-white px-10 py-4 rounded-full font-medium hover:shadow-2xl hover:shadow-gray-500/50 transition-all duration-300 transform hover:scale-105 shadow-lg group relative overflow-hidden">
-                        <span className="relative z-10">Xem tất cả voucher</span>
-                        <div className="absolute inset-0 bg-linear-to-r from-gray-700 to-gray-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    </button>
                 </div>
             </div>
         </section>
