@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, FormEvent, useState } from "react";
+import { useEffect, FormEvent, useState, Suspense  } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Globe, LogIn, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-export default function LoginModal() {
+function Login() {
   const router = useRouter();
   const params = useSearchParams();
   const show = params.get("modal") === "true";
@@ -150,5 +150,13 @@ export default function LoginModal() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginModal() {
+  return (
+    <Suspense fallback={null}>
+      <Login />
+    </Suspense>
   );
 }

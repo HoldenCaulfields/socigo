@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, FormEvent, useEffect } from "react";
+import { useState, FormEvent, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { X, Loader2, UserPlus, AlertTriangle, CheckCircle, ArrowRight } from "lucide-react";
 
-export default function SignupModal() {
+function Signup() {
   const router = useRouter();
   const params = useSearchParams();
   const show = params.get("signup") === "true";
@@ -227,5 +227,13 @@ export default function SignupModal() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function SisnupModal() {
+  return (
+    <Suspense fallback={null}>
+      <Signup />
+    </Suspense>
   );
 }

@@ -42,7 +42,7 @@ const TopBrandsSection = () => {
           <Link 
             href={`/services/${brand._id}`} 
             key={index}
-            className="flex-shrink-0 w-64 md:w-full h-40 bg-gray-300 rounded-xl overflow-hidden relative shadow-md transition-shadow duration-300 hover:shadow-xl"
+            className="shrink-0 w-64 md:w-full h-40 bg-gray-300 rounded-xl overflow-hidden relative shadow-md transition-shadow duration-300 hover:shadow-xl"
             // Lấy ảnh đầu tiên trong mảng images
             style={{ 
                 backgroundImage: `url(${brand.images[0] || '/images/placeholder.jpg'})`, 
@@ -52,7 +52,7 @@ const TopBrandsSection = () => {
           >
             
             {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
             
             <div className="absolute bottom-3 left-3 text-white">
               <h3 className="text-lg font-bold">{brand.name}</h3>

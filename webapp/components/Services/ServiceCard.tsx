@@ -29,7 +29,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
                 </div>
 
                 {/* Content */}
-                <div className="p-4 flex flex-col flex-grow">
+                <div className="p-4 flex flex-col grow">
                     <h2 className="text-xl font-bold text-gray-900 mb-1 line-clamp-2">{service.name}</h2>
                     
                     <div className="flex items-center justify-between text-sm mb-3">
@@ -48,7 +48,7 @@ const ServiceCard = ({ service }: ServiceCardProps) => {
                     {/* Location & Partner */}
                     <div className="mt-auto space-y-1 text-gray-600 text-sm">
                         <p className="flex items-center">
-                            <MapPin size={16} className="mr-1 flex-shrink-0" />
+                            <MapPin size={16} className="mr-1 shrink-0" />
                             {service.city}
                         </p>
                         <p className="line-clamp-1">
