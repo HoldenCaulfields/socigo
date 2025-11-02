@@ -75,8 +75,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-white text-neutral-900">
-      
-
       {/* Nội dung */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-10">
         <HeroSearchBanner userName={user?.name || ""} />

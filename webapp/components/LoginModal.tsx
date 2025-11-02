@@ -1,18 +1,32 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useEffect, FormEvent, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Globe, LogIn, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { Globe, LogIn } from "lucide-react"; // 🧩 dùng icon từ lucide-react
 
-const LoginPage = () => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+export default function LoginModal() {
   const router = useRouter();
+  const params = useSearchParams();
+  const show = params.get("modal") === "true";
+
   const { login } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleClose = () => {
+    router.back(); // quay lại URL trước đó
+  };
+
+  useEffect(() => {
+    if (!show) return;
+    const handleEsc = (e: KeyboardEvent) => e.key === "Escape" && handleClose();
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [show]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -34,10 +48,26 @@ const LoginPage = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
+  if (!show) return null;
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors">
-      <div className="w-full max-w-md bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl border border-neutral-200 dark:border-neutral-800 rounded-3xl shadow-xl p-8 md:p-10">
-        
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in"
+      onClick={handleClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-md bg-white/90 dark:bg-neutral-900/90 rounded-3xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 md:p-10 animate-in slide-in-from-bottom"
+      >
+        {/* Close Button */}
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+          aria-label="Đóng"
+        >
+          <X size={20} />
+        </button>
+
         {/* Header */}
         <div className="text-center mb-8">
           <LogIn size={40} className="mx-auto text-neutral-800 dark:text-neutral-100 mb-3" />
@@ -89,7 +119,7 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold tracking-tight hover:opacity-90 active:scale-[0.98] transition disabled:opacity-50"
+            className="w-full py-3 rounded-xl bg-linear-to-r from-gray-900 to-gray-700 text-white font-semibold tracking-tight hover:shadow-lg hover:shadow-gray-500/30 active:scale-[0.98] transition disabled:opacity-50"
           >
             {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
@@ -97,9 +127,9 @@ const LoginPage = () => {
 
         {/* OR Divider */}
         <div className="flex items-center my-6">
-          <div className="flex-grow border-t border-neutral-300 dark:border-neutral-700" />
+          <div className="grow border-t border-neutral-300 dark:border-neutral-700" />
           <span className="mx-3 text-sm text-neutral-500">Hoặc</span>
-          <div className="flex-grow border-t border-neutral-300 dark:border-neutral-700" />
+          <div className="grow border-t border-neutral-300 dark:border-neutral-700" />
         </div>
 
         {/* Google Login */}
@@ -114,16 +144,11 @@ const LoginPage = () => {
         {/* Footer */}
         <p className="mt-6 text-sm text-center text-neutral-600 dark:text-neutral-400">
           Chưa có tài khoản?{" "}
-          <Link
-            href="/signup"
-            className="font-medium text-neutral-900 dark:text-neutral-100 hover:underline"
-          >
+          <Link href="/signup?signup=true" className="font-medium text-neutral-900 dark:text-neutral-100 hover:underline">
             Đăng ký
           </Link>
         </p>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}

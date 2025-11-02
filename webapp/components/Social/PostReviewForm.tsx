@@ -62,7 +62,7 @@ const PostReviewForm = ({ serviceId, onPostSuccess }: PostReviewFormProps) => {
         return (
             <div className="p-6 bg-white rounded-xl shadow-lg border border-gray-200 text-center">
                 <p className="mb-4 text-gray-600">Bạn cần đăng nhập để {(isReview ? 'viết đánh giá' : 'đăng bài viết')}.</p>
-                <Link href="/login" className="inline-flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                <Link href="/login?modal=true" className="inline-flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-colors">
                     Đăng Nhập Ngay
                 </Link>
             </div>

@@ -29,7 +29,7 @@ const ProfilePage = () => {
           Đăng nhập để xem thông tin cá nhân và hoạt động của bạn.
         </p>
         <Link
-          href="/login"
+          href="/login?modal=true"
           className="bg-black text-white px-6 py-2 rounded-full font-semibold hover:bg-neutral-800 transition"
         >
           Đăng nhập ngay

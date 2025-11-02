@@ -7,6 +7,7 @@ export interface UserAuthData {
   email: string;
   role: 'user' | 'partner' | 'admin';
   avatarUrl: string;
+  businessCategory: string;
   token: string;
 }
 
@@ -15,7 +16,7 @@ export interface AuthContextType {
   user: UserAuthData | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
-  signup: (userData: { name: string; email: string; password: string; role?: 'user' | 'partner' | 'admin' }) => Promise<{ success: boolean; message?: string }>;
+  signup: (userData: { name: string; email: string; password: string; businessCategory?: string; role?: 'user' | 'partner' | 'admin' }) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
 }
 
