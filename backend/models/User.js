@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
   }}, 
   avatarUrl: { type: String, default: '' },
   role: { type: String, enum: ['user', 'partner', 'admin'], default: 'user' },
+  businessCategory: { type: String, default: '' },
   points: { type: Number, default: 0 },
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // danh sách bạn bè
   googleId: { type: String, unique: true, sparse: true }, // For Google Auth
