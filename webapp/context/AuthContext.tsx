@@ -1,36 +1,39 @@
 // context/AuthContext.tsx
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import axios, { AxiosResponse } from 'axios';
-import { UserAuthData, AuthContextType } from '../types'; // Import types
+import { UserAuthData, AuthContextType } from '../types';
+import { useRouter } from "next/navigation";
 
-// Get API URL from environment variables
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const channel = typeof window !== "undefined" ? new BroadcastChannel('auth') : null;
 
-// Initialize context with a default value that matches the interface
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
 
 interface AuthProviderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<UserAuthData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load user data from localStorage on initial load
+  const router = useRouter();
+
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    
     if (storedToken && storedUser) {
       try {
         const parsedUser: UserAuthData = JSON.parse(storedUser);
@@ -38,7 +41,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         setUser(parsedUser);
       } catch (e) {
         console.error("Failed to parse stored user data:", e);
-        // Clear invalid storage
         localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
@@ -46,67 +48,81 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setLoading(false);
   }, []);
 
-  // --- Core Authentication Functions ---
-
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     try {
-      const response: AxiosResponse<UserAuthData> = await axios.post(`${API_URL}/auth/login`, { email, password });
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       const data = response.data;
 
-      // Save token and user info
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data));
-      
-      // Set the Authorization header for future requests
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      
+
       setUser(data);
+      channel?.postMessage({ type: 'LOGIN', user: data });
+
+      // ✅ Thêm điều hướng theo role
+      if (data.role === 'user') router.push('/user');
+      else if (data.role === 'partner') router.push('/doanhnghiep');
+      else if (data.role === 'admin') router.push('/admin');
+      else router.push('/');
+
       return { success: true };
     } catch (error) {
-      const message = axios.isAxiosError(error) 
-        ? error.response?.data?.message || 'Login failed' 
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || 'Login failed'
         : 'An unexpected error occurred';
       return { success: false, message };
     }
-  };
+  }, [router]);
 
-  const signup = async (userData: { name: string; email: string; password: string; role?: 'user' | 'partner' | 'admin' }) => {
+  const signup = useCallback(async (userData: { name: string; email: string; password: string; role?: 'user' | 'partner' | 'admin' }) => {
     try {
       const response: AxiosResponse<UserAuthData> = await axios.post(`${API_URL}/auth/signup`, userData);
       const data = response.data;
-      
-      // Automatically log the user in after successful sign up
+
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data));
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      
+
       setUser(data);
+      channel?.postMessage({ type: 'LOGIN', user: data });
+
+      // ✅ Thêm điều hướng
+      if (data.role === 'user') router.push('/user');
+      else if (data.role === 'partner') router.push('/doanhnghiep');
+      else if (data.role === 'admin') router.push('/admin');
+      else router.push('/');
+
       return { success: true };
     } catch (error) {
-      const message = axios.isAxiosError(error) 
-        ? error.response?.data?.message || 'Sign up failed' 
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message || 'Sign up failed'
         : 'An unexpected error occurred';
       return { success: false, message };
     }
-  };
+  }, [router]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
-  };
+    channel?.postMessage({ type: 'LOGOUT' });
+  }, []);
 
-  const contextValue: AuthContextType = {
-    user,
-    loading,
-    login,
-    signup,
-    logout,
-  };
+  useEffect(() => {
+    if (!channel) return;
+    channel.onmessage = (event) => {
+      if (event.data.type === 'LOGOUT') setUser(null);
+      if (event.data.type === 'LOGIN') setUser(event.data.user);
+    };
+    return () => channel.close();
+  }, []);
+
+  if (loading) return null;
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );

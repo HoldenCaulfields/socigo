@@ -1,261 +1,238 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, User, Search, LogOut, Globe } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  Bell,
+  MessageCircle,
+  Home,
+  Users,
+  Store,
+  Wallet,
+  Search,
+  Globe,
+  Menu,
+  X,
+  LogOut,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import LoginModal from "../LoginModal";
+import SignupModal from "../SignupModal";
 
 const MainHeader = () => {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
-  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
-  // 🔤 Language
+  const [search, setSearch] = useState("");
   const [language, setLanguage] = useState("vi");
-  const [langOpen, setLangOpen] = useState(false);
-  const langRef = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false);
 
-  // 🔍 Search
-  const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+  // 🧩 Modal states
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
 
+  const openLogin = () => {
+    setShowSignup(false);
+    setShowLogin(true);
+  };
+  const openSignup = () => {
+    setShowLogin(false);
+    setShowSignup(true);
+  };
+  const closeModals = () => {
+    setShowLogin(false);
+    setShowSignup(false);
+  };
+
+  // 🌐 Load & lưu ngôn ngữ
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const storedLang = localStorage.getItem("lang");
+    if (storedLang) setLanguage(storedLang);
+  }, []);
+  const toggleLang = () => {
+    const nextLang = language === "vi" ? "en" : "vi";
+    setLanguage(nextLang);
+    localStorage.setItem("lang", nextLang);
+  };
+
+  // 🌫️ Hiệu ứng cuộn
+  useEffect(() => {
+    const handleScroll = () => {
+      requestAnimationFrame(() => setScrolled(window.scrollY > 10));
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // ✅ Fetch search suggestions
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (query.trim().length < 2) {
-        setResults([]);
-        return;
-      }
-      const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
-      const data = await res.json();
-      setResults(data.results || []);
-    };
-    const timeout = setTimeout(fetchResults, 400);
-    return () => clearTimeout(timeout);
-  }, [query]);
-
-  // ✅ Handle clicks outside dropdowns
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowResults(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleLogout = () => {
-    logout();
+  // 🚪 Logout handler
+  const handleLogout = async () => {
+    await logout();
     router.push("/");
-    setOpen(false);
   };
 
-  const handleLanguageChange = (lang: string) => {
-    setLanguage(lang);
-    localStorage.setItem("lang", lang);
-    setLangOpen(false);
+  // 🔍 Xử lý tìm kiếm
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (search.trim()) router.push(`/search?q=${encodeURIComponent(search)}`);
   };
-
-  useEffect(() => {
-    const savedLang = localStorage.getItem("lang");
-    if (savedLang) setLanguage(savedLang);
-  }, []);
 
   return (
     <>
-      {/* Header */}
       <header
-        className={`sticky top-0 left-0  right-0 z-50 transition-all duration-500 ${scrolled
-          ? "bg-white backdrop-blur-xl shadow-lg py-5"
-          : "bg-white py-5"
+        className={`w-full border-b border-gray-200 sticky top-0 z-50 transition-all duration-300 ${scrolled ? "bg-white/90 backdrop-blur-xl shadow-sm" : "bg-white"
           }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-8">
-          {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 group select-none cursor-pointer"
-          >
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center transform group-hover:rotate-12 transition-all duration-300">
-              <Image
-                src="/logo.png"
-                alt="SOCIGO Logo"
-                width={36}
-                height={36}
-                className="rounded-xl"
-              />
-            </div>
-            <span className="text-2xl font-bold bg-linear-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent tracking-wide">
-              SOCIGO
-            </span>
-          </Link>
-
-          {/* Search */}
-          <div ref={searchRef} className="hidden md:flex flex-col items-center w-1/3 relative">
-            <div className="w-full flex items-center bg-gray-100 rounded-full px-4 py-2 focus-within:ring-2 focus-within:ring-gray-400 transition-all">
-              <Search size={18} className="text-gray-600" />
-              <input
-                type="text"
-                placeholder={language === "vi" ? "Tìm kiếm..." : "Search..."}
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setShowResults(true);
-                }}
-                className="w-full bg-transparent outline-none text-sm ml-2"
-              />
-            </div>
-            {showResults && results.length > 0 && (
-              <div className="absolute top-12 w-full bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-                {results.map((item, i) => (
-                  <Link
-                    key={i}
-                    href={`/item/${item.id}`}
-                    className="block px-4 py-2 hover:bg-gray-100 text-sm text-gray-800"
-                    onClick={() => {
-                      setQuery("");
-                      setShowResults(false);
-                    }}
-                  >
-                    {item.title}
-                  </Link>
-                ))}
+        <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-3">
+          {/* 🧭 Logo + Nav */}
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+                <Image src="/logo.png" alt="SOCIGO" width={36} height={36} />
               </div>
-            )}
+              <span className="text-2xl font-extrabold tracking-tight text-gray-900">
+                SOCIGO
+              </span>
+            </Link>
+
+            <nav className="hidden md:flex items-center gap-2 text-sm text-gray-600">
+              <NavButton label="Trang chủ" icon={<Home size={16} />} href="/" />
+              <NavButton label="Khám phá" icon={<Store size={16} />} href="/posts" />
+              <NavButton label="Bạn bè" icon={<Users size={16} />} href="/profile" />
+              <NavButton label="Dịch vụ" icon={<Wallet size={16} />} href="/services" />
+            </nav>
           </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8 text-gray-700 font-bold">
-            <Link href="/services" className="relative group hover:text-gray-900 transition-colors">
-              Dịch vụ
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link href="/posts" className="relative group hover:text-gray-900 transition-colors">
-              Mạng xã hội
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link href="/profile" className="relative group hover:text-gray-900 transition-colors">
-              Hồ sơ
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gray-900 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-          </nav>
+          {/* 🔍 Search */}
+          <div className="flex-1 px-4 max-w-lg hidden md:block">
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Tìm bạn bè, dịch vụ, địa điểm..."
+                className="pl-9 pr-3 py-2 w-full bg-gray-50 border border-gray-200 rounded-full text-sm focus:ring-2 focus:ring-gray-300 focus:bg-white outline-none transition-all"
+              />
+            </form>
+          </div>
 
-          {/* Actions */}
+          {/* 👤 User actions */}
           <div className="flex items-center gap-3">
+            {user && (
+              <>
+                <IconButton icon={<Bell size={18} />} />
+                <IconButton icon={<MessageCircle size={18} />} />
+              </>
+            )}
+
             {/* Auth */}
             {loading ? (
               <span className="text-sm text-gray-500">Đang tải...</span>
             ) : user ? (
               <div className="flex items-center gap-2">
-                <Link href="/profile" className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1.5 transition-all">
-                  <User size={18} className="text-gray-800" />
-                  <span className="hidden sm:inline text-sm font-medium text-gray-800">
-                    {user.name.split(" ")[0]}
-                  </span>
-                </Link>
                 <button
-                  onClick={handleLogout}
-                  aria-label="Đăng xuất"
-                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  onClick={() => router.push("/profile")}
+                  className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1.5 transition-all"
                 >
-                  <LogOut size={18} className="text-gray-800" />
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage src={user.avatarUrl || "/default-avatar.png"} alt={user.name} />
+                    <AvatarFallback className="bg-blue-600 text-white">
+                      {user.name?.charAt(0) || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline text-sm font-medium text-gray-800">
+                    {user.name?.split(" ")[0]}
+                  </span>
                 </button>
+                <IconButton icon={<LogOut size={18} className="text-gray-800" />} onClick={handleLogout} />
               </div>
             ) : (
               <>
-                <Link
-                  href="/login?modal=true"
-                  className="hidden md:inline-block text-sm font-semibold bg-linear-to-r from-gray-900 to-gray-700 text-white px-5 py-2.5 rounded-full hover:scale-105 transition-all"
+                {/* 🖥️ Desktop */}
+                <button
+                  onClick={openLogin}
+                  className="hidden md:inline-block text-sm font-semibold bg-gray-900 text-white px-5 py-2.5 rounded-full hover:opacity-90 transition"
                 >
                   Đăng nhập
-                </Link>
-                <Link
-                  href="/signup?signup=true"
-                  className="hidden md:inline-block text-sm font-semibold bg-linear-to-r from-gray-900 to-gray-700 text-white px-5 py-2.5 rounded-full hover:scale-105 transition-all"
+                </button>
+                <button
+                  onClick={openSignup}
+                  className="hidden md:inline-block text-sm font-semibold border border-gray-300 text-gray-800 px-5 py-2.5 rounded-full hover:bg-gray-50 transition"
                 >
                   Đăng ký
-                </Link>
+                </button>
+
+                {/* 📱 Mobile icons */}
+                <div className="flex md:hidden">
+                  <IconButton
+                    onClick={openLogin}
+                    icon={<LogIn size={20} className="text-gray-800" />}
+                  />
+                  <IconButton
+                    onClick={openSignup}
+                    icon={<UserPlus size={20} className="text-gray-800" />}
+                  />
+                </div>
               </>
             )}
 
             {/* 🌐 Language */}
-            <div ref={langRef} className="relative">
-              <button onClick={() => setLangOpen(!langOpen)} className="p-2 rounded-full hover:bg-gray-100 transition-colors flex items-center gap-1">
-                <Globe size={18} className="text-gray-700" />
-                <span className="text-sm font-medium">{language.toUpperCase()}</span>
-              </button>
-              {langOpen && (
-                <div className="absolute right-0 mt-2 bg-white shadow-md rounded-lg border border-gray-200 w-28 overflow-hidden z-50">
-                  <button onClick={() => handleLanguageChange("vi")} className={`block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${language === "vi" ? "font-semibold text-gray-900" : "text-gray-700"}`}>
-                    🇻🇳 Tiếng Việt
-                  </button>
-                  <button onClick={() => handleLanguageChange("en")} className={`block w-full text-left px-3 py-2 text-sm hover:bg-gray-100 ${language === "en" ? "font-semibold text-gray-900" : "text-gray-700"}`}>
-                    🇺🇸 English
-                  </button>
-                </div>
-              )}
-            </div>
+            <IconButton onClick={toggleLang} icon={<Globe size={16} />}>
+              <span className="text-sm font-medium">{language.toUpperCase()}</span>
+            </IconButton>
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
-              onClick={() => setOpen(!open)}
-              aria-label="Menu"
-            >
-              {open ? <X size={22} /> : <Menu size={22} />}
-            </button>
+            {/* 📱 Mobile menu toggle */}
+            <div className="md:hidden">
+              <IconButton onClick={() => setOpen(!open)} icon={open ? <X size={22} /> : <Menu size={22} />} />
+            </div>
           </div>
         </div>
       </header>
 
-      {/* Mobile Drawer */}
+      {/* 📱 Mobile drawer */}
       <div
-        className={`fixed z-10 top-0 right-0 h-full w-4/5 max-w-sm bg-white border-l border-gray-200 shadow-xl transition-transform duration-300 ease-in-out md:hidden ${open ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 h-full w-4/5 max-w-xs bg-white border-l border-gray-200 shadow-xl z-50 transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"
           }`}
       >
-        <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+        <div className="flex justify-between items-center p-4 border-b border-gray-200">
           <span className="font-semibold text-lg text-gray-900">Menu</span>
-          <button onClick={() => setOpen(false)} className="p-2 rounded-full hover:bg-gray-100">
-            <X size={22} />
-          </button>
+          <IconButton onClick={() => setOpen(false)} icon={<X size={22} />} />
         </div>
 
-        <nav className="flex flex-col p-6 text-gray-800">
-          <Link href="/services" onClick={() => setOpen(false)} className="py-3 text-sm font-medium hover:text-gray-900">
-            Dịch vụ
-          </Link>
-          <Link href="/posts" onClick={() => setOpen(false)} className="py-3 text-sm font-medium hover:text-gray-900">
-            Mạng xã hội
-          </Link>
-          <Link href="/profile" onClick={() => setOpen(false)} className="py-3 text-sm font-medium hover:text-gray-900">
-            Hồ sơ
-          </Link>
+        <nav className="flex flex-col p-4 text-gray-700">
+          <MobileLink href="/" icon={<Home size={16} />} label="Trang chủ" />
+          <MobileLink href="/explore" icon={<Store size={16} />} label="Khám phá" />
+          <MobileLink href="/friends" icon={<Users size={16} />} label="Bạn bè" />
+          <MobileLink href="/services" icon={<Wallet size={16} />} label="Dịch vụ" />
 
-          <div className="border-t border-gray-200 mt-4 pt-4">
+          <div className="mt-4 border-t border-gray-200 pt-4">
             {user ? (
-              <button onClick={handleLogout} className="text-left w-full py-3 text-sm font-medium text-red-600 hover:bg-gray-100 rounded-lg">
+              <button
+                onClick={handleLogout}
+                className="w-full text-left text-red-600 hover:bg-gray-100 py-2 px-3 rounded-md font-medium"
+              >
                 Đăng xuất
               </button>
             ) : (
-              <div className="flex flex-col gap-3 mt-3">
-                <Link href="/login?modal=true" onClick={() => setOpen(false)} className="block w-full text-center font-semibold bg-linear-to-r from-gray-900 to-gray-700 text-white py-2.5 rounded-full hover:scale-105 transition-all">
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={openLogin}
+                  className="text-center font-semibold bg-gray-900 text-white py-2.5 rounded-full hover:opacity-90 transition"
+                >
                   Đăng nhập
-                </Link>
-                <Link href="/signup?signup=true" onClick={() => setOpen(false)} className="block w-full text-center font-semibold bg-white text-gray-800 border border-gray-300 py-2.5 rounded-full hover:bg-gray-100 transition-all">
+                </button>
+                <button
+                  onClick={openSignup}
+                  className="text-center font-semibold border border-gray-300 py-2.5 rounded-full hover:bg-gray-50 transition"
+                >
                   Đăng ký
-                </Link>
+                </button>
               </div>
             )}
           </div>
@@ -263,13 +240,64 @@ const MainHeader = () => {
       </div>
 
       {/* Overlay */}
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm md:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
+      {open && <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setOpen(false)} />}
+
+      {/* 🪟 Modals */}
+      <LoginModal isOpen={showLogin} onClose={closeModals} onSwitchToSignup={openSignup} />
+      <SignupModal isOpen={showSignup} onClose={closeModals} onSwitchToLogin={openLogin} />
     </>
+  );
+};
+
+/* === Sub components === */
+
+const IconButton = ({
+  icon,
+  onClick,
+  children,
+}: {
+  icon: React.ReactNode;
+  onClick?: () => void;
+  children?: React.ReactNode;
+}) => (
+  <button onClick={onClick} className="p-2 rounded-md hover:bg-gray-100 transition flex items-center gap-1">
+    {icon}
+    {children}
+  </button>
+);
+
+const NavButton = ({
+  label,
+  icon,
+  href,
+}: {
+  label: string;
+  icon: any;
+  href: string;
+}) => {
+  const pathname = usePathname();
+  const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+  return (
+    <Link
+      href={href}
+      className={`flex items-center gap-1.5 px-3 py-2 rounded-md transition text-sm ${active ? "bg-gray-200 text-gray-900 font-medium" : "hover:bg-gray-50 text-gray-600"
+        }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </Link>
+  );
+};
+
+const MobileLink = ({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) => {
+  const router = useRouter();
+  return (
+    <button
+      onClick={() => router.push(href)}
+      className="py-2 flex items-center gap-2 hover:text-gray-900 w-full text-left"
+    >
+      {icon} {label}
+    </button>
   );
 };
 

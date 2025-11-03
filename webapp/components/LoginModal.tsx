@@ -1,32 +1,25 @@
 "use client";
 
-import { useEffect, FormEvent, useState, Suspense  } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { Globe, LogIn, X } from "lucide-react";
+import { useState, FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { Globe, LogIn, X } from "lucide-react";
 
-function Login() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const show = params.get("modal") === "true";
-
+export default function LoginModal({
+  isOpen,
+  onClose,
+  onSwitchToSignup,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToSignup: () => void;
+}) {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleClose = () => {
-    router.back(); // quay lại URL trước đó
-  };
-
-  useEffect(() => {
-    if (!show) return;
-    const handleEsc = (e: KeyboardEvent) => e.key === "Escape" && handleClose();
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [show]);
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,11 +29,11 @@ function Login() {
     const result = await login(email, password);
 
     if (result.success) {
-      router.push("/");
+      setMessage({ type: "success", text: "Đăng nhập thành công!" });
+      setTimeout(() => onClose(), 700);
     } else {
       setMessage({ type: "error", text: result.message || "Đăng nhập thất bại" });
     }
-
     setIsSubmitting(false);
   };
 
@@ -48,36 +41,33 @@ function Login() {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
-  if (!show) return null;
-
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in"
-      onClick={handleClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+      onClick={onClose}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md bg-white/90 dark:bg-neutral-900/90 rounded-3xl shadow-2xl border border-neutral-200 dark:border-neutral-800 p-8 md:p-10 animate-in slide-in-from-bottom"
+        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-200 p-8 md:p-10 animate-in fade-in slide-in-from-bottom"
       >
-        {/* Close Button */}
+        {/* Close */}
         <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
-          aria-label="Đóng"
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition"
         >
           <X size={20} />
         </button>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <LogIn size={40} className="mx-auto text-neutral-800 dark:text-neutral-100 mb-3" />
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Đăng nhập</h1>
+          <LogIn size={40} className="mx-auto text-gray-800 mb-3" />
+          <h1 className="text-3xl font-bold">Đăng nhập</h1>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-2 text-neutral-700 dark:text-neutral-300">
+            <label htmlFor="email" className="block text-sm font-medium mb-2 text-gray-700">
               Email
             </label>
             <input
@@ -86,12 +76,12 @@ function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-3 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-200 transition"
+              className="w-full p-3 rounded-xl bg-white border border-gray-300 focus:ring-2 focus:ring-black outline-none"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium mb-2 text-neutral-700 dark:text-neutral-300">
+            <label htmlFor="password" className="block text-sm font-medium mb-2 text-gray-700">
               Mật khẩu
             </label>
             <input
@@ -100,7 +90,7 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-3 rounded-xl bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900 dark:focus:ring-neutral-200 transition"
+              className="w-full p-3 rounded-xl bg-white border border-gray-300 focus:ring-2 focus:ring-black outline-none"
             />
           </div>
 
@@ -108,8 +98,8 @@ function Login() {
             <div
               className={`text-sm p-3 rounded-lg text-center ${
                 message.type === "error"
-                  ? "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300"
-                  : "bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-300"
+                  ? "bg-red-100 text-red-600"
+                  : "bg-green-100 text-green-600"
               }`}
             >
               {message.text}
@@ -119,44 +109,39 @@ function Login() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 rounded-xl bg-linear-to-r from-gray-900 to-gray-700 text-white font-semibold tracking-tight hover:shadow-lg hover:shadow-gray-500/30 active:scale-[0.98] transition disabled:opacity-50"
+            className="w-full py-3 rounded-xl bg-black text-white font-semibold tracking-tight hover:bg-gray-800 transition disabled:opacity-50"
           >
             {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
 
-        {/* OR Divider */}
+        {/* Divider */}
         <div className="flex items-center my-6">
-          <div className="grow border-t border-neutral-300 dark:border-neutral-700" />
-          <span className="mx-3 text-sm text-neutral-500">Hoặc</span>
-          <div className="grow border-t border-neutral-300 dark:border-neutral-700" />
+          <div className="grow border-t border-gray-300" />
+          <span className="mx-3 text-sm text-gray-500">Hoặc</span>
+          <div className="grow border-t border-gray-300" />
         </div>
 
-        {/* Google Login */}
+        {/* Google */}
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center py-3 rounded-xl border border-neutral-300 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition font-medium"
+          className="w-full flex items-center justify-center py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition font-medium"
         >
-          <Globe size={20} className="mr-2 text-neutral-700 dark:text-neutral-300" />
+          <Globe size={20} className="mr-2 text-gray-700" />
           Đăng nhập với Google
         </button>
 
         {/* Footer */}
-        <p className="mt-6 text-sm text-center text-neutral-600 dark:text-neutral-400">
+        <p className="mt-6 text-sm text-center text-gray-600">
           Chưa có tài khoản?{" "}
-          <Link href="/signup?signup=true" className="font-medium text-neutral-900 dark:text-neutral-100 hover:underline">
+          <button
+            onClick={onSwitchToSignup}
+            className="font-medium text-black hover:underline"
+          >
             Đăng ký
-          </Link>
+          </button>
         </p>
       </div>
     </div>
-  );
-}
-
-export default function LoginModal() {
-  return (
-    <Suspense fallback={null}>
-      <Login />
-    </Suspense>
   );
 }

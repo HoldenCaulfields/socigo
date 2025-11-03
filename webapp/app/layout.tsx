@@ -35,8 +35,8 @@ export default function RootLayout({
         <AuthProviderWrapper>
           <MainHeader />
           {children}
-          <LoginModal />
-          <SignupModal />
+          {/* <LoginModal />
+          <SignupModal /> */}
         </AuthProviderWrapper>
       </body>
     </html>

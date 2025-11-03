@@ -1,15 +1,25 @@
 "use client";
 
-import { useState, FormEvent, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, FormEvent } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { X, Loader2, UserPlus, AlertTriangle, CheckCircle, ArrowRight } from "lucide-react";
+import {
+  X,
+  Loader2,
+  UserPlus,
+  AlertTriangle,
+  CheckCircle,
+  ArrowRight,
+} from "lucide-react";
 
-function Signup() {
-  const router = useRouter();
-  const params = useSearchParams();
-  const show = params.get("signup") === "true";
-
+export default function SignupModal({
+  isOpen,
+  onClose,
+  onSwitchToLogin,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToLogin: () => void;
+}) {
   const { signup } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -17,16 +27,12 @@ function Signup() {
   const [role, setRole] = useState<"user" | "partner">("user");
   const [businessCategory, setBusinessCategory] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "error" | "success";
+    text: string;
+  } | null>(null);
 
-  const handleClose = () => router.back();
-
-  useEffect(() => {
-    if (!show) return;
-    const handleEsc = (e: KeyboardEvent) => e.key === "Escape" && handleClose();
-    window.addEventListener("keydown", handleEsc);
-    return () => window.removeEventListener("keydown", handleEsc);
-  }, [show]);
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -36,31 +42,34 @@ function Signup() {
     const result = await signup({ name, email, password, role, businessCategory });
 
     if (result.success) {
-      setMessage({ type: "success", text: "Đăng ký thành công! Đang chuyển hướng..." });
-      setTimeout(() => router.push("/"), 1500);
+      setMessage({
+        type: "success",
+        text: "Đăng ký thành công! Đang chuyển hướng...",
+      });
+      setTimeout(onClose, 1000);
     } else {
-      setMessage({ type: "error", text: result.message || "Đăng ký thất bại" });
+      setMessage({
+        type: "error",
+        text: result.message || "Đăng ký thất bại",
+      });
     }
 
     setIsSubmitting(false);
   };
 
-  if (!show) return null;
-
   return (
     <div
-      onClick={handleClose}
-      className="fixed inset-0 z-50 text-white flex items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-10 px-4"
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto py-10 px-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-3xl bg-white/90 dark:bg-neutral-900/95 backdrop-blur-lg border border-gray-200 dark:border-neutral-800 rounded-2xl shadow-2xl p-8 md:p-10 animate-[slideUp_0.35s_ease-out]"
+        className="relative w-full max-w-3xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl p-8 md:p-10 border border-gray-200 dark:border-neutral-800 animate-in fade-in slide-in-from-bottom"
       >
         {/* Close */}
         <button
-          onClick={handleClose}
+          onClick={onClose}
           className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-neutral-800 transition"
-          aria-label="Đóng"
         >
           <X size={20} />
         </button>
@@ -77,8 +86,10 @@ function Signup() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Họ và tên */}
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div>
             <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
               Họ và tên
@@ -93,7 +104,6 @@ function Signup() {
             />
           </div>
 
-          {/* Email */}
           <div>
             <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
               Email
@@ -108,7 +118,6 @@ function Signup() {
             />
           </div>
 
-          {/* Mật khẩu */}
           <div>
             <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
               Mật khẩu
@@ -124,48 +133,34 @@ function Signup() {
             />
           </div>
 
-          {/* Loại tài khoản */}
+          {/* Role */}
           <div>
             <span className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
               Loại tài khoản
             </span>
             <div className="flex gap-3">
-              <label
-                className={`flex-1 text-center py-3 rounded-xl border-2 cursor-pointer font-semibold ${
-                  role === "user"
-                    ? "bg-white text-black border-gray-900"
-                    : "border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-gray-400"
-                }`}
-              >
-                <input
-                  type="radio"
-                  value="user"
-                  checked={role === "user"}
-                  onChange={() => setRole("user")}
-                  className="hidden"
-                />
-                Khách hàng
-              </label>
-              <label
-                className={`flex-1 text-center py-3 rounded-xl border-2 cursor-pointer font-semibold ${
-                  role === "partner"
-                    ? "bg-white text-black border-gray-900"
-                    : "border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-gray-400"
-                }`}
-              >
-                <input
-                  type="radio"
-                  value="partner"
-                  checked={role === "partner"}
-                  onChange={() => setRole("partner")}
-                  className="hidden"
-                />
-                Doanh nghiệp
-              </label>
+              {["user", "partner"].map((r) => (
+                <label
+                  key={r}
+                  className={`flex-1 text-center py-3 rounded-xl border-2 cursor-pointer font-semibold ${
+                    role === r
+                      ? "bg-white text-black border-gray-900"
+                      : "border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-gray-400"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    value={r}
+                    checked={role === r}
+                    onChange={() => setRole(r as "user" | "partner")}
+                    className="hidden"
+                  />
+                  {r === "user" ? "Khách hàng" : "Doanh nghiệp"}
+                </label>
+              ))}
             </div>
           </div>
 
-          {/* Ngành kinh doanh */}
           {role === "partner" && (
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold mb-2 text-gray-700 dark:text-gray-300">
@@ -181,14 +176,13 @@ function Signup() {
                 <option value="Nhà hàng & Ăn uống">Nhà hàng & Ăn uống</option>
                 <option value="Khách sạn & Lưu trú">Khách sạn & Lưu trú</option>
                 <option value="Spa & Làm đẹp">Spa & Làm đẹp</option>
-                <option value="Dịch vụ tour & trải nghiệm">Dịch vụ tour & trải nghiệm</option>
+                <option value="Tour & Trải nghiệm">Tour & Trải nghiệm</option>
                 <option value="Giải trí & Sự kiện">Giải trí & Sự kiện</option>
                 <option value="Khác">Khác</option>
               </select>
             </div>
           )}
 
-          {/* Message */}
           {message && (
             <div
               className={`md:col-span-2 text-sm p-3 rounded-lg text-center ${
@@ -206,12 +200,11 @@ function Signup() {
             </div>
           )}
 
-          {/* Submit */}
           <div className="md:col-span-2">
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gray-800 hover:bg-gray-800 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg disabled:opacity-60"
+              className="w-full bg-black text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:bg-gray-800 active:scale-[0.98] disabled:opacity-60"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
@@ -225,15 +218,18 @@ function Signup() {
             </button>
           </div>
         </form>
+
+        {/* Footer */}
+        <p className="mt-6 text-sm text-center text-gray-600 dark:text-gray-400">
+          Đã có tài khoản?{" "}
+          <button
+            onClick={onSwitchToLogin}
+            className="font-medium text-black dark:text-white hover:underline"
+          >
+            Đăng nhập
+          </button>
+        </p>
       </div>
     </div>
-  );
-}
-
-export default function SisnupModal() {
-  return (
-    <Suspense fallback={null}>
-      <Signup />
-    </Suspense>
   );
 }
