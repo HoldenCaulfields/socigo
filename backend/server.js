@@ -9,6 +9,7 @@ import landingpage from './landingpage/landingpage.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import serviceRoutes from './routes/serviceRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -25,13 +26,7 @@ app.use('/api/auth', authRoutes);
 
 // **Example of a protected route**
 // You would likely have separate routes for the Service model logic
-app.get('/api/users/profile', protect, (req, res) => {
-  // req.user is available here thanks to the 'protect' middleware
-  res.json({
-    message: 'User profile accessed successfully',
-    user: req.user,
-  });
-});
+app.use("/api/users", userRoutes);
 
 // **Example of a protected route with role check**
 app.get('/api/admin/dashboard', protect, checkRole('admin'), (req, res) => {
