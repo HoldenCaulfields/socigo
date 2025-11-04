@@ -1,12 +1,15 @@
 // components/Services/TopBrandsSection.tsx
 "use client";
 
-import Link from 'next/link';
-import { useTopServices } from '@/hooks/useTopServices'; // Import hook mới
-import { Loader2 } from 'lucide-react';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTopServices } from "@/hooks/useTopServices";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button"; // nếu bạn đã có shadcn/ui
 
 const TopBrandsSection = () => {
   const { topServices, loading, error } = useTopServices();
+  const router = useRouter();
 
   if (loading) {
     return (
@@ -18,48 +21,51 @@ const TopBrandsSection = () => {
   }
 
   if (error) {
-     return (
-        <section className="mt-6 text-center py-8 text-red-600">
-           <p>Lỗi tải dữ liệu: {error}</p>
-        </section>
+    return (
+      <section className="mt-6 text-center py-8 text-red-600">
+        <p>Lỗi tải dữ liệu: {error}</p>
+      </section>
     );
   }
-  
-  // Nếu không có dữ liệu, có thể ẩn section hoặc hiển thị thông báo
-  if (topServices.length === 0) {
-       return null;
+
+  if (!topServices || topServices.length === 0) {
+    return null;
   }
 
   return (
-    <section className="mt-6">
-      <h2 className="text-lg font-bold mb-3 text-gray-800">Top 1 Thương Hiệu</h2>
-      <p className="text-sm text-gray-500 mb-4">Được nhiều người sử dụng</p>
-      
-      {/* Grid layout: 2 cột trên desktop, cuộn ngang trên mobile */}
-      <div className="flex space-x-4 overflow-x-auto pb-3 md:grid md:grid-cols-2 md:gap-4 md:space-x-0">
-        {topServices.map((brand, index) => (
-          // SỬ DỤNG LINK ĐỂ CHUYỂN ĐẾN TRANG CHI TIẾT DỊCH VỤ
-          <Link 
-            href={`/services/${brand._id}`} 
-            key={index}
-            className="shrink-0 w-64 md:w-full h-40 bg-gray-300 rounded-xl overflow-hidden relative shadow-md transition-shadow duration-300 hover:shadow-xl"
-            // Lấy ảnh đầu tiên trong mảng images
-            style={{ 
-                backgroundImage: `url(${brand.images[0] || '/images/placeholder.jpg'})`, 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center' 
-            }}
+    <section className="px-6 py-10">
+      <h2 className="text-2xl font-bold mb-4">🔥 Dịch vụ được đánh giá cao</h2>
+
+      <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4">
+        {topServices.map((s) => (
+          <div
+            key={s._id}
+            className="snap-start shrink-0 w-72 bg-white rounded-2xl shadow hover:shadow-md transition overflow-hidden"
           >
-            
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
-            
-            <div className="absolute bottom-3 left-3 text-white">
-              <h3 className="text-lg font-bold">{brand.name}</h3>
-              {/* Hiển thị chi tiết được tạo trong hook */}
-              <p className="text-xs">{brand.detail}</p> 
+            <img
+              src={s.images?.[0] || "/images/placeholder.jpg"}
+              alt={s.name}
+              className="w-full h-44 object-cover"
+            />
+
+            <div className="p-4">
+              <h3 className="font-semibold text-lg line-clamp-1">{s.name}</h3>
+              <p className="text-sm text-gray-500 line-clamp-2">{s.detail || "Dịch vụ chất lượng cao được nhiều người yêu thích."}</p>
+
+              <div className="mt-2 flex justify-between text-sm text-gray-600">
+                <span>⭐ {s.rating?.toFixed(1) || "4.5"}</span>
+                <span>{s.totalReviews || "0"} đánh giá</span>
+              </div>
+
+              <Button
+                size="sm"
+                className="w-full mt-3 bg-black text-white hover:bg-gray-800"
+                onClick={() => router.push(`/services/${s._id}`)}
+              >
+                Xem chi tiết
+              </Button>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
     </section>

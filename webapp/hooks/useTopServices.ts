@@ -6,7 +6,7 @@ import axios from 'axios';
 import { ServiceData } from '@/types'; // Sử dụng kiểu dữ liệu ServiceData đã có
 
 // Định nghĩa kiểu dữ liệu cho dữ liệu trả về (có thể chỉ là 2-4 dịch vụ)
-type TopServiceData = Pick<ServiceData, '_id' | 'name' | 'images' | 'city' | 'priceRange'> & {
+type TopServiceData = Pick<ServiceData, '_id' | 'name' | 'images' | 'city' | 'priceRange' | 'rating' | 'totalReviews'> & {
     detail?: string; // Thêm trường detail nếu cần
 };
 
@@ -28,11 +28,12 @@ export const useTopServices = () => {
             // Xử lý dữ liệu thô từ ServiceData thành định dạng Brands cho UI
             const formattedData: TopServiceData[] = data.services.map(service => ({
                 _id: service._id,
-                name: service.name.toUpperCase(), // Có thể muốn hiển thị in hoa
+                name: service.name.toUpperCase(),
                 images: service.images,
                 city: service.city,
                 priceRange: service.priceRange,
-                // Tạo detail giả định hoặc lấy từ một trường khác
+                rating: service.rating,
+                totalReviews: service.totalReviews,
                 detail: `${service.city}, ${service.priceRange.toUpperCase()}`
             }));
 
