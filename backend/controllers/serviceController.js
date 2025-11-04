@@ -151,7 +151,7 @@ export const deleteService = asyncHandler(async (req, res) => {
 
 export const getTopServices = asyncHandler(async (req, res) => {
     // 1. Xác định số lượng dịch vụ top muốn lấy
-    const limit = 4; // Ví dụ: Lấy 4 dịch vụ hàng đầu
+    const limit = 5; // Ví dụ: Lấy 4 dịch vụ hàng đầu
 
     // 2. Định nghĩa tiêu chí sắp xếp:
     // Sắp xếp theo: 
