@@ -4,7 +4,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from '@/context/AuthContext';
-// Giả định bạn có các types sau
 // import { UserData, BookingData, ReviewData } from '@/types'; 
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/users/profile`;

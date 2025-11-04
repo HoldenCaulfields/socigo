@@ -226,7 +226,7 @@ export default function ShowUpPage() {
                         📈 Ngành dịch vụ phổ biến
                     </h2>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+                    <div className="flex space-x-4 overflow-x-auto pb-3 snap-x snap-mandatory md:grid md:grid-cols-5 md:gap-5 md:space-x-0 md:overflow-visible">
                         {categories.map((c, i) => (
                             <Card
                                 key={i}
