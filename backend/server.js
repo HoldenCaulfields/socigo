@@ -12,7 +12,7 @@ import reviewRoutes from './routes/reviewRoutes.js';
 import userRoutes from "./routes/userRoutes.js";
 import friendRoutes from './routes/friendRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
-import feedRoutes from './routes/FeedRoutes.js';
+import feedRoutes from './routes/feedRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import postsRoutes from './routes/postsRoutes.js';
 
