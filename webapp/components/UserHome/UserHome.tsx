@@ -1,33 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import {
-  Card,
-  CardContent,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import {
-  Bell,
-  Home,
-  Store,
-  Users,
-  Wallet,
-  Settings,
-  MessageCircle,
-  Search,
-  Heart,
-  Bookmark,
-  Star,
-  Tag,
-  Calendar,
-  MapPin,
-  Phone,
-} from 'lucide-react';
+
 import { UserAuthData } from "@/types";
 import { useProfile } from '@/hooks/useProfile';
-import { useServices } from '@/hooks/useServices';
 import SidebarLeft from './SidebarLeft'
 import FeedCenter from './CenterFeed'
 import SidebarRight from './SidebarRight'
@@ -64,10 +39,7 @@ type Service = {
 type UserSuggestion = { id: number; name: string; avatar: string; mutual: number }
 
 export default function Page({ user }: UserHomeProps) {
-  const [search, setSearch] = useState('');
-  const [query, setQuery] = useState('');
   const { data, loading, error } = useProfile();
-  const { fetchServices } = useServices();
 
   if (loading) {
     return (
@@ -87,7 +59,6 @@ export default function Page({ user }: UserHomeProps) {
 
   if (!data) return null;
 
-  const profileUser = data.user;
 /*   const posts = data.posts || []; */
   const bookings = data.bookings || [];
 
@@ -230,10 +201,6 @@ export default function Page({ user }: UserHomeProps) {
 
   const trendingTags = ['#nhahang', '#spa', '#deal', '#tichdiem', '#banbe', '#khuyenmai']
 
-  // helpers
-  const filterServices = (category?: string) =>
-    services.filter((s) => (category ? s.category === category : true))
-
   const categories = Array.from(new Set(services.map((s) => s.category)))
 
   return (
@@ -242,131 +209,5 @@ export default function Page({ user }: UserHomeProps) {
       <FeedCenter posts={posts} stories={stories} services={services} categories={categories} bookings={bookings} />
       <SidebarRight services={services} />
     </main>
-  )
-}
-
-/* ------------------------
-   Subcomponents
-   ------------------------ */
-
-function NavButton({ label, icon, active }: { label: string; icon: React.ReactNode; active?: boolean }) {
-  return (
-    <button
-      className={`flex items-center gap-2 px-3 py-1 rounded-md ${active ? 'bg-black text-white' : 'hover:bg-gray-100 text-gray-700'
-        } text-sm`}
-    >
-      <span>{icon}</span>
-      <span>{label}</span>
-    </button>
-  )
-}
-
-function SidebarButton({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <button className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-50 text-sm">
-      <span>{icon}</span>
-      <span>{label}</span>
-    </button>
-  )
-}
-
-function Story({ name, avatar }: { name: string; avatar: string }) {
-  return (
-    <div className="min-w-[74px]">
-      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-transparent hover:border-black transition">
-        <img src={avatar} alt={name} className="w-full h-full object-cover" />
-      </div>
-      <p className="text-xs text-center mt-2">{name}</p>
-    </div>
-  )
-}
-
-function PostCard({ post }: { post: Post }) {
-  return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3 mb-3">
-          <Avatar>
-            <AvatarImage src={post.avatar} />
-            <AvatarFallback>{post.user[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-semibold">{post.user}</p>
-                <p className="text-xs text-gray-500">{post.time} • {post.place}</p>
-              </div>
-              <div className="text-sm text-gray-400">...</div>
-            </div>
-            {post.caption && <p className="mt-3 text-sm">{post.caption}</p>}
-            {post.images && post.images.length > 0 && (
-              <div className={`mt-3 grid ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
-                {post.images.map((img, i) => (
-                  <img
-                    key={i}
-                    src={img}
-                    className="w-full h-40 object-cover rounded-md"
-                    alt={`post-${post.id}-${i}`}
-                  />
-                ))}
-              </div>
-            )}
-            <div className="flex items-center justify-between mt-3 text-sm text-gray-600">
-              <div className="flex items-center gap-4">
-                <button className="flex items-center gap-2 hover:text-black">
-                  <Heart size={16} /> <span>{post.likes}</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-black">
-                  <Bookmark size={16} /> <span>{post.saves ?? 0}</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-black">
-                  <Star size={16} /> <span>{post.comments}</span>
-                </button>
-              </div>
-              <div className="text-xs text-gray-500">{post.tags?.slice(0, 3).join(' ')}</div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function ServiceCard({ s }: { s: Service }) {
-  return (
-    <Card className="hover:shadow-md transition">
-      <div className="flex gap-3">
-        <img src={s.img} alt={s.name} className="w-32 h-24 object-cover rounded-l-md hidden sm:block" />
-        <CardContent className="p-3 flex-1">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="font-medium">{s.name}</p>
-              <p className="text-xs text-gray-500 mt-1">{s.category} • {s.city}</p>
-              <p className="text-xs text-gray-500 mt-2">⭐ {s.rating} • {s.price}</p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <Button size="sm" variant="outline">Chi tiết</Button>
-              <Button size="sm">Đặt ngay</Button>
-            </div>
-          </div>
-        </CardContent>
-      </div>
-    </Card>
-  )
-}
-
-function ExperienceCard({ p }: { p: Post }) {
-  return (
-    <div className="border rounded-md overflow-hidden">
-      <img src={p.images?.[0] ?? 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=1200&q=80'} className="w-full h-28 object-cover" />
-      <div className="p-3">
-        <p className="font-medium text-sm">{p.place}</p>
-        <p className="text-xs text-gray-500 mt-1">{p.user} • {p.time}</p>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-xs text-gray-600">❤️ {p.likes}</span>
-          <span className="text-xs text-gray-600">💬 {p.comments}</span>
-        </div>
-      </div>
-    </div>
   )
 }

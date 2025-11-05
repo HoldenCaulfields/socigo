@@ -107,3 +107,36 @@ export interface NotificationData {
   read: boolean;
   createdAt: string;
 }
+
+// types/index.ts
+export interface PostData {
+  _id: string;
+  userId: {
+    _id: string;
+    name: string;
+    avatar?: string;
+  };
+  text: string;
+  type: 'status' | 'review' | 'music';
+  mood?: string; // ví dụ: "😄 Vui vẻ", "😔 Buồn"
+  music?: string; // Spotify link
+  serviceId?: {
+    _id: string;
+    name: string;
+  };
+  rating?: number;
+  likes: string[];
+  createdAt: string;
+  comments?: CommentData[];
+}
+
+export interface CommentData {
+  _id: string;
+  text: string;
+  userId: {
+    _id: string;
+    name: string;
+    avatar?: string;
+  };
+  createdAt: string;
+}

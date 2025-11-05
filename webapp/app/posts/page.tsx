@@ -1,13 +1,16 @@
 "use client";
-
 import { useEffect, useState, useCallback } from "react";
-import { useReviewPost } from "@/hooks/useReviewPost";
-import { ReviewData } from "@/types";
-import { Star, Heart, MessageSquare, Loader2 } from "lucide-react";
-import PostReviewForm from "@/components/Social/PostReviewForm";
+import { Loader2, Heart, MessageSquare, Star, Share2, TrendingUp, Flame, Users, Sparkles } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { usePosts } from "@/hooks/usePosts";
+import { PostData } from "@/types";
+import CreatePost from "@/components/Social/CreatePost";
+import MusicEmbed from "@/components/Social/MusicEmbed";
+import { useProfile } from "@/hooks/useProfile";
 
 interface PostCardProps {
-  post: ReviewData;
+  post: PostData;
   onLikeToggle: (postId: string) => void;
   currentUserId?: string;
 }
@@ -15,183 +18,289 @@ interface PostCardProps {
 const PostCard = ({ post, onLikeToggle, currentUserId }: PostCardProps) => {
   const isLiked = currentUserId ? post.likes.includes(currentUserId) : false;
   const isReview = post.serviceId && post.rating;
-
+  
   return (
-    <div className="bg-white border border-neutral-200 rounded-2xl shadow-sm hover:shadow-md transition-all p-6 mb-6">
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4 border-b border-neutral-100 pb-3">
-        <div>
-          <p className="font-semibold text-lg text-neutral-900">
-            {post.userId.name}
-          </p>
-          <p className="text-sm text-neutral-500">
-            {new Date(post.createdAt).toLocaleDateString()}
-          </p>
+    <Card className="overflow-hidden bg-white hover:shadow-lg transition-all duration-300 border border-gray-200">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <Avatar className="ring-2 ring-gray-100">
+            {post.userId.avatar ? (
+              <AvatarImage src={post.userId.avatar} />
+            ) : (
+              <AvatarFallback className="bg-black text-white">{post.userId.name[0]}</AvatarFallback>
+            )}
+          </Avatar>
+          <div>
+            <p className="font-bold text-black">{post.userId.name}</p>
+            <p className="text-xs text-gray-500">
+              {new Date(post.createdAt).toLocaleString("vi-VN")}
+            </p>
+          </div>
         </div>
-
+        
+        <p className="text-gray-900 mb-4 leading-relaxed whitespace-pre-line text-[15px]">
+          {post.text}
+        </p>
+        
+        {post.music && <MusicEmbed url={post.music} />}
+        
+        {post.mood && (
+          <p className="text-sm italic text-gray-600 bg-gray-50 px-3 py-2 rounded-lg inline-block">
+            Tâm trạng: {post.mood}
+          </p>
+        )}
+        
         {isReview && (
-          <div className="flex items-center text-yellow-500">
+          <div className="flex items-center gap-1 text-yellow-500 mt-3 mb-3">
             {Array(post.rating!)
               .fill(0)
               .map((_, i) => (
                 <Star key={i} size={16} fill="currentColor" />
               ))}
+            <span className="text-sm text-gray-600 ml-2 font-medium">
+              {(post.serviceId as any).name || ""}
+            </span>
           </div>
         )}
-      </div>
-
-      {/* Service name */}
-      {isReview && post.serviceId && (
-        <p className="text-sm text-neutral-600 font-medium mb-3">
-          Về dịch vụ:{" "}
-          <span className="text-neutral-900">
-            {typeof post.serviceId === "object"
-              ? (post.serviceId as any).name
-              : post.serviceId}
-          </span>
-        </p>
-      )}
-
-      {/* Nội dung bài viết */}
-      <p className="text-neutral-800 leading-relaxed whitespace-pre-line mb-4">
-        {post.text}
-      </p>
-
-      {/* Tương tác */}
-      <div className="pt-3 border-t border-neutral-100 flex items-center gap-6 text-sm">
-        <button
-          onClick={() => onLikeToggle(post._id)}
-          className={`flex items-center gap-1 transition-colors ${
-            isLiked
-              ? "text-red-500"
-              : "text-neutral-500 hover:text-red-400 active:scale-95"
-          }`}
-        >
-          <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
-          <span>{post.likes.length}</span>
-        </button>
-
-        <div className="flex items-center gap-1 text-neutral-500">
-          <MessageSquare size={18} />
-          <span>0</span>
+        
+        <div className="flex justify-between text-sm mt-4 pt-4 border-t border-gray-100">
+          <button
+            onClick={() => onLikeToggle(post._id)}
+            className={`flex items-center gap-2 transition-all duration-200 px-3 py-1.5 rounded-lg ${
+              isLiked ? "text-red-500 bg-red-50" : "hover:bg-gray-100 text-gray-600"
+            }`}
+          >
+            <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+            <span className="font-medium">{post.likes.length}</span>
+          </button>
+          <button className="flex items-center gap-2 hover:bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg transition-all">
+            <MessageSquare size={18} />
+            <span className="font-medium">0</span>
+          </button>
+          <button className="flex items-center gap-2 hover:bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg transition-all">
+            <Share2 size={18} />
+            <span className="font-medium">Chia sẻ</span>
+          </button>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
-const SocialFeedPage = () => {
-  const { submitPost, toggleLike, fetchPosts: getPosts } = useReviewPost();
-  const [posts, setPosts] = useState<ReviewData[]>([]);
+const TrendingTopics = () => {
+  const topics = [
+    { name: "#MusicMonday", count: "2.4K bài viết", trending: true },
+    { name: "#ReviewCafe", count: "1.8K bài viết", trending: true },
+    { name: "#HanoiFood", count: "956 bài viết", trending: false },
+    { name: "#WeekendVibes", count: "743 bài viết", trending: false },
+  ];
+  
+  return (
+    <Card className="bg-white border-gray-200 sticky top-4">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp className="text-black" size={20} />
+          <h3 className="font-bold text-black text-lg">Xu hướng</h3>
+        </div>
+        <div className="space-y-3">
+          {topics.map((topic, idx) => (
+            <div 
+              key={idx} 
+              className="hover:bg-gray-50 p-3 rounded-lg cursor-pointer transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-black group-hover:text-gray-700">{topic.name}</p>
+                {topic.trending && <Flame size={16} className="text-orange-500" />}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{topic.count}</p>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const TrendingUsers = () => {
+  const users = [
+    { name: "Nguyễn Văn A", avatar: null, posts: 234, followers: "12.5K" },
+    { name: "Trần Thị B", avatar: null, posts: 189, followers: "9.8K" },
+    { name: "Lê Minh C", avatar: null, posts: 156, followers: "7.2K" },
+  ];
+  
+  return (
+    <Card className="bg-white border-gray-200">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Users className="text-black" size={20} />
+          <h3 className="font-bold text-black text-lg">Người dùng nổi bật</h3>
+        </div>
+        <div className="space-y-4">
+          {users.map((user, idx) => (
+            <div key={idx} className="flex items-center justify-between hover:bg-gray-50 p-3 rounded-lg transition-all cursor-pointer">
+              <div className="flex items-center gap-3">
+                <Avatar className="ring-2 ring-gray-100">
+                  <AvatarFallback className="bg-black text-white font-bold">
+                    {user.name[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-bold text-black text-sm">{user.name}</p>
+                  <p className="text-xs text-gray-500">{user.followers} người theo dõi</p>
+                </div>
+              </div>
+              <button className="px-4 py-1.5 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-all">
+                Theo dõi
+              </button>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const ControversialPosts = () => {
+  const posts = [
+    { title: "Tranh luận về giá cafe Hà Nội", comments: 234, engagement: "Cao" },
+    { title: "Review dịch vụ gây sốc", comments: 189, engagement: "Cao" },
+    { title: "Ý kiến trái chiều về âm nhạc", comments: 156, engagement: "Trung bình" },
+  ];
+  
+  return (
+    <Card className="bg-white border-gray-200">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Flame className="text-orange-500" size={20} />
+          <h3 className="font-bold text-black text-lg">Bài viết hot</h3>
+        </div>
+        <div className="space-y-3">
+          {posts.map((post, idx) => (
+            <div 
+              key={idx} 
+              className="hover:bg-gray-50 p-3 rounded-lg cursor-pointer transition-all border-l-4 border-orange-500"
+            >
+              <p className="font-semibold text-black text-sm mb-2">{post.title}</p>
+              <div className="flex items-center gap-3 text-xs text-gray-500">
+                <span className="flex items-center gap-1">
+                  <MessageSquare size={12} />
+                  {post.comments} bình luận
+                </span>
+                <span className="px-2 py-0.5 bg-orange-100 text-orange-600 rounded-full font-medium">
+                  {post.engagement}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default function SocialFeedPage() {
+  const { fetchPosts, submitPost, toggleLike } = usePosts();
+  const [posts, setPosts] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const currentUserId = "temp_user_id";
+  const { data } = useProfile();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  const loadPosts = useCallback(
-    async (pageNumber: number) => {
-      setLoading(true);
-      try {
-        const data = await getPosts(pageNumber);
-        setPosts(data.posts || []);
-        setTotalPages(data.pages || 1);
-      } catch (err) {
-        console.error("Failed to load posts:", err);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [getPosts]
-  );
+  useEffect(() => {
+    if (data && data.user) {
+      setAvatarUrl(data.user.avatarUrl || null);
+    }
+  }, [data]);
+
+  const loadPosts = useCallback(async (pageNumber: number) => {
+    setLoading(true);
+    try {
+      const data = await fetchPosts(pageNumber);
+      setPosts(data.posts || []);
+      setTotalPages(data.pages || 1);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchPosts]);
 
   useEffect(() => {
     loadPosts(1);
-  }, []);
+  }, [loadPosts]);
 
   const handleLikeToggle = async (postId: string) => {
     const result = await toggleLike(postId);
-    if (!result) return;
+    if (!result?.success) return;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p._id === postId
+          ? {
+            ...p,
+            likes: p.likes.includes(currentUserId)
+              ? p.likes.filter((id) => id !== currentUserId)
+              : [...p.likes, currentUserId],
+          }
+          : p
+      )
+    );
+  };
 
-    if (result.success) {
-      setPosts((prev) =>
-        prev.map((p) =>
-          p._id === postId
-            ? {
-                ...p,
-                likes: p.likes.includes(currentUserId)
-                  ? p.likes.filter((id) => id !== currentUserId)
-                  : [...p.likes, currentUserId],
-              }
-            : p
-        )
-      );
+  const handlePostSubmit = async (newPost: any) => {
+    const result = await submitPost(newPost);
+    if (result?.success) {
+      await loadPosts(1);
     }
   };
 
-  const handlePostSuccess = () => loadPosts(1);
-
   return (
-    <main className="min-h-screen bg-neutral-50 text-neutral-900 px-4 md:px-8 py-20">
-      <section className="max-w-3xl mx-auto">
-        <header className="mb-12 border-b border-neutral-200 pb-6">
-          <h1 className="text-4xl font-extrabold tracking-tight mb-2">
-            Bảng Tin Cộng Đồng
-          </h1>
-          <p className="text-neutral-600">
-            Nơi mọi người chia sẻ đánh giá, cảm nhận và trải nghiệm dịch vụ.
-          </p>
-        </header>
+    <main className="min-h-screen bg-gray-50 text-black py-8 px-4">
+      <div className="max-w-7xl mx-auto">
 
-        {/* Form */}
-        <div className="mb-10">
-          <PostReviewForm onPostSuccess={handlePostSuccess} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Sidebar */}
+          <aside className="lg:col-span-3 space-y-6">
+            <TrendingTopics />
+          </aside>
+
+          {/* Main Feed */}
+          <section className="lg:col-span-6 space-y-6">
+            <CreatePost onSubmit={handlePostSubmit} userAvatar={avatarUrl || undefined} />
+            
+            {loading ? (
+              <div className="flex justify-center items-center py-20">
+                <Loader2 size={32} className="animate-spin text-black" />
+              </div>
+            ) : posts.length === 0 ? (
+              <Card className="bg-white border-gray-200">
+                <CardContent className="p-12 text-center">
+                  <div className="text-6xl mb-4">📝</div>
+                  <p className="text-gray-600 text-lg">
+                    Chưa có bài viết nào. Hãy là người đầu tiên chia sẻ!
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-5">
+                {posts.map((post) => (
+                  <PostCard
+                    key={post._id}
+                    post={post}
+                    onLikeToggle={handleLikeToggle}
+                    currentUserId={currentUserId}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Right Sidebar */}
+          <aside className="lg:col-span-3 space-y-6">
+            <TrendingUsers />
+            <ControversialPosts />
+          </aside>
         </div>
-
-        {/* Feed */}
-        {loading ? (
-          <div className="flex justify-center items-center py-20 text-neutral-500">
-            <Loader2 size={32} className="animate-spin mr-3" />
-            Đang tải bảng tin...
-          </div>
-        ) : posts.length === 0 ? (
-          <div className="bg-white border border-neutral-200 p-10 rounded-2xl text-center text-neutral-500">
-            Chưa có bài viết nào được đăng. Hãy là người đầu tiên chia sẻ!
-          </div>
-        ) : (
-          posts.map((post) => (
-            <PostCard
-              key={post._id}
-              post={post}
-              onLikeToggle={handleLikeToggle}
-              currentUserId={currentUserId}
-            />
-          ))
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center mt-10 gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => {
-                  setPage(p);
-                  loadPosts(p);
-                }}
-                className={`px-4 py-2 rounded-full border text-sm font-medium transition ${
-                  p === page
-                    ? "bg-black text-white border-black"
-                    : "bg-white border-neutral-300 text-neutral-700 hover:bg-neutral-100"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        )}
-      </section>
+      </div>
     </main>
   );
-};
-
-export default SocialFeedPage;
+}
