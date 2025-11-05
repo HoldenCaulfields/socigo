@@ -4,8 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProviderWrapper from './providers/AuthProviderWrapper';
 import MainHeader from "@/components/Layout/MainHeader";
-import LoginModal from "@/components/LoginModal";
-import SignupModal from "@/components/SignupModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Socigo - Social Service Marketplace", // Updated Title
   description: "A social network and service marketplace platform.", // Updated Description
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

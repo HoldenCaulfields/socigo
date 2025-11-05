@@ -148,7 +148,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useEffect, useState } from "react";
-import UserHome from "@/components/UserHome";
+import UserHome from "@/components/UserHome/UserHome";
 import PartnerHome from "@/components/PartnerHome";
 import PublicHome from "@/components/PublicHome";
 

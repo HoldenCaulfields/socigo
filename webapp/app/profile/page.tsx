@@ -192,55 +192,99 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-neutral-200 p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center"><User size={20} className="mr-2" /> Thông tin cá nhân</h2>
+          <div className="lg:col-span-1 bg-white rounded-2xl shadow-md border border-neutral-200 p-6 transition-all hover:shadow-lg hover:border-neutral-300">
+  <h2 className="text-xl font-semibold mb-6 flex items-center text-neutral-800">
+    <User size={22} className="mr-2 text-primary" /> 
+    Thông tin cá nhân
+  </h2>
 
-            {/* Edit Form */}
-            <div className="space-y-3 text-sm text-neutral-700">
-              <label className="block text-xs font-medium text-neutral-600">Ảnh đại diện</label>
-              <div className="flex items-center gap-3">
-                <div className="w-20 h-20 rounded-full overflow-hidden bg-neutral-100 flex items-center justify-center">
-                  {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <User size={28} className="text-neutral-400" />
-                  )}
-                </div>
-                {isEditing && (
-                  <div>
-                    <input onChange={handleAvatarSelect} type="file" accept="image/*" className="text-sm" />
-                    <p className="text-xs text-neutral-500 mt-1">Kích thước tối đa 5MB. JPG/PNG.</p>
-                  </div>
-                )}
-              </div>
+  {/* Edit Form */}
+  <div className="space-y-5 text-sm text-neutral-700">
+    {/* Avatar */}
+    <div>
+      <label className="block text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+        Ảnh đại diện
+      </label>
+      <div className="flex items-center gap-4">
+        <div className="relative w-20 h-20 rounded-full overflow-hidden border border-neutral-200 bg-neutral-50 flex items-center justify-center shadow-sm">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt="avatar"
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            />
+          ) : (
+            <User size={28} className="text-neutral-400" />
+          )}
+        </div>
 
-              <div>
-                <label className="block text-xs font-medium text-neutral-600">Họ & tên</label>
-                {isEditing ? (
-                  <input value={name} onChange={(e) => setName(e.target.value)} className="mt-1 block w-full rounded-md border border-neutral-200 px-3 py-2" />
-                ) : (
-                  <p className="mt-1 text-neutral-800">{profileUser.name}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-600">Email</label>
-                {isEditing ? (
-                  <input value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 block w-full rounded-md border border-neutral-200 px-3 py-2" />
-                ) : (
-                  <p className="mt-1 text-neutral-800">{profileUser.email}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-600">Vai trò</label>
-                <p className="mt-1 text-neutral-800 capitalize">{profileUser.role}</p>
-              </div>
-
-              {errorMsg && <p className="text-sm text-red-600 mt-2">{errorMsg}</p>}
-            </div>
+        {isEditing && (
+          <div className="flex flex-col">
+            <input
+              onChange={handleAvatarSelect}
+              type="file"
+              accept="image/*"
+              className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-md file:border-0 file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+            />
+            <p className="text-xs text-neutral-500 mt-1">
+              Kích thước tối đa 5MB (JPG/PNG)
+            </p>
           </div>
+        )}
+      </div>
+    </div>
+
+    {/* Name */}
+    <div>
+      <label className="block text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+        Họ & tên
+      </label>
+      {isEditing ? (
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition-all"
+        />
+      ) : (
+        <p className="mt-1 text-neutral-800 font-medium">{profileUser.name}</p>
+      )}
+    </div>
+
+    {/* Email */}
+    <div>
+      <label className="block text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+        Email
+      </label>
+      {isEditing ? (
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mt-1 block w-full rounded-lg border border-neutral-200 px-3 py-2 focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition-all"
+        />
+      ) : (
+        <p className="mt-1 text-neutral-800">{profileUser.email}</p>
+      )}
+    </div>
+
+    {/* Role */}
+    <div>
+      <label className="block text-xs font-medium text-neutral-500 uppercase tracking-wide mb-1">
+        Vai trò
+      </label>
+      <p className="mt-1 text-neutral-800 font-medium capitalize">
+        {profileUser.role}
+      </p>
+    </div>
+
+    {errorMsg && (
+      <p className="text-sm text-red-600 bg-red-50 rounded-md px-3 py-2 border border-red-200 mt-3">
+        {errorMsg}
+      </p>
+    )}
+  </div>
+</div>
+
 
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6">

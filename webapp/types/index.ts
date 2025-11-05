@@ -84,3 +84,26 @@ export interface ServiceFormInput {
     priceRange: string;
     images: string[];
 }
+
+export interface FriendData {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  mutualCount?: number;
+}
+
+export interface MessageData {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface NotificationData {
+  id: string;
+  type: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
